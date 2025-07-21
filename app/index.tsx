@@ -5,6 +5,7 @@ import { Link } from "expo-router";
 import { theme } from "../theme";
 import { useEffect, useState } from "react";
 import { getStorageItem, setStorageItem } from "../utils/storage";
+import * as Haptics from "expo-haptics"
 
 type ShoppingListItemProps = {
   id: string;
@@ -55,12 +56,18 @@ export default function App() {
     const newShoppingList = shoppingList.filter((item) => item.id !== id);
     setStorageItem(storageKey, newShoppingList);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     setShoppingList(newShoppingList);
   };
 
   const handleToggleComplete = (id: string) => {
    const newShoppingList = shoppingList.map((item) => {
       if (item.id === id) {
+        if(item.onCompletedTimestamp) {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+        } else {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        }
         return {
           ...item,
           // isCompleted: !item.isCompleted,
