@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, FlatList, View, Text } from "react-native";
+import { StyleSheet, TextInput, FlatList, View, Text, LayoutAnimation } from "react-native";
 
 import { ShoppingListItem } from "../components/ShoppingListItem";
 import { Link } from "expo-router";
@@ -30,6 +30,7 @@ export default function App() {
     const fetchInitialShoppingList = async () => {
       const data = await getStorageItem(storageKey);
       if (data) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
         setShoppingList(data);
       }
     };
@@ -44,6 +45,7 @@ export default function App() {
       isCompleted: false,
       lastUpdateTimestamp: Date.now(),
     };
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     setShoppingList((prev) => [...prev, newShoppingItem]);
     setStorageItem(storageKey, [...shoppingList, newShoppingItem]);
     setNewItem("");
@@ -52,6 +54,7 @@ export default function App() {
   const handleDelete = (id: string) => {
     const newShoppingList = shoppingList.filter((item) => item.id !== id);
     setStorageItem(storageKey, newShoppingList);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     setShoppingList(newShoppingList);
   };
 
@@ -68,6 +71,7 @@ export default function App() {
       return item;
     });
     setStorageItem(storageKey, newShoppingList);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
     setShoppingList(newShoppingList);
   };
 
