@@ -11,8 +11,10 @@ module.exports = defineConfig([
     plugins: {
       prettier: require("eslint-plugin-prettier"),
     },
+    pluggins: ["prettier", "react-native"],
     rules: {
       "prettier/prettier": "error",
+      "react-native/no-unused-styles": "error",
     },
   },
 ]);

@@ -1,0 +1,126 @@
+import { StyleSheet, TextInput, FlatList, View, Text } from "react-native";
+
+import { ShoppingListItem } from "../components/ShoppingListItem";
+import { Link } from "expo-router";
+import { theme } from "../theme";
+import { useState } from "react";
+
+type ShoppingListItemProps = {
+  id: string;
+  name: string;
+  isCompleted?: boolean;
+  onCompletedTimestamp?: number;
+  lastUpdateTimestamp?: number;
+};
+
+const initialItems: ShoppingListItemProps[] = [
+  { id: "1", name: "Coffee" },
+  { id: "2", name: "Tea", isCompleted: true },
+  { id: "3", name: "Sossa", isCompleted: true },
+  { id: "4", name: "Milk", isCompleted: true },
+];
+
+export default function App() {
+  const [newItem, setNewItem] = useState("");
+  const [shoppingList, setShoppingList] = useState<ShoppingListItemProps[]>(initialItems);
+
+  const handleSubmit = () => {
+    if (newItem.trim() === "") return;
+    const newShoppingItem = {
+      id: Math.random().toString(),
+      name: newItem,
+      isCompleted: false,
+      lastUpdateTimestamp: Date.now(),
+    };
+    setShoppingList((prev) => [...prev, newShoppingItem]);
+    setNewItem("");
+  };
+
+  const handleDelete = (id: string) => {
+    setShoppingList((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleToggleComplete = (id: string) => {
+    setShoppingList((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, onCompletedTimestamp: Date.now(),lastUpdateTimestamp: Date.now() } : item
+      )
+    );
+  };
+
+  return (
+    <FlatList
+    data={orderShoppingList(shoppingList)}
+    renderItem={({ item }) => (
+      <ShoppingListItem key={item.id} name={item.name} isCompleted={Boolean(item.onCompletedTimestamp)} onDelete={() => handleDelete(item.id)} onToggleComplete={() => handleToggleComplete(item.id)} />
+    )}
+    style={styles.container} 
+    contentContainerStyle={styles.contentContainer} 
+    stickyHeaderIndices={[0]}
+    ListEmptyComponent={
+      <View style={styles.listEmptyContainer}>
+        <Text>No items in the shopping list</Text>
+      </View>
+    }
+    ListHeaderComponent={
+       <TextInput 
+      placeholder="E.g Coffee" 
+      style={styles.textInput} 
+      value={newItem} 
+      onChangeText={setNewItem}
+      returnKeyType="done"
+      onSubmitEditing={handleSubmit}
+      />
+    }
+
+    />
+  );
+}
+
+function orderShoppingList(items: ShoppingListItemProps[]) {
+  return items.sort((a, b) => {
+    if(a.onCompletedTimestamp && b.onCompletedTimestamp) {
+      return b.onCompletedTimestamp - a.onCompletedTimestamp;
+    }
+    if (a.onCompletedTimestamp && !b.onCompletedTimestamp) {
+      return 1
+    }
+    if (!a.onCompletedTimestamp && b.onCompletedTimestamp) {
+      return -1;
+    }
+    if(!a.onCompletedTimestamp && !b.onCompletedTimestamp) {
+      const aTimestamp = a.lastUpdateTimestamp ?? 0;
+      const bTimestamp = b.lastUpdateTimestamp ?? 0;
+      return bTimestamp - aTimestamp;
+    }
+    return 0;
+  });
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff", 
+    paddingVertical: 12
+  },
+  contentContainer: {
+    paddingBottom: 22,
+  },
+  textInput: {
+   backgroundColor: theme.colorWhite,
+    borderColor: theme.colorGray,
+    borderWidth: 2,
+    marginHorizontal: 10,
+    padding: 12,
+    marginBottom: 12,
+    borderRadius: 50,
+    fontSize: 18,
+    color: theme.colorBlack,
+  },
+  listEmptyContainer: {
+    
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+});
